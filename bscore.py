@@ -2,6 +2,9 @@ import Queue
 import sys
 import argparse
 import numpy as np
+import random
+import math
+import itertools
 
 ALPHA = 1
 
@@ -10,7 +13,7 @@ class NodeState(object):
     parents=None
     score=None
 
-    def __init__(self,i,p=[],scorer,rows):
+    def __init__(self,i,p,scorer,rows):
         self.index = i
         self.parents = p
         self.score = scorer.score(self.index, self.parents, rows)
@@ -60,10 +63,10 @@ class Scorer(object):
     def __init__(self):
         pass
 
-    def score(index, parent_indices, rows):
+    def score(self, index, parent_indices, rows):
         indices = parent_indices + [index]
         subdata = rows.data[:,indices]
-        tuples, counts = np.unique({tuple(row) for row in subdata}, return_counts=True)
+        tuples, counts = np.unique([tuple(row) for row in subdata], return_counts=True)
 
         lga = math.lgamma(ALPHA)
 
@@ -80,7 +83,7 @@ class RandomNodeStateGen(object):
     def __init__(self):
         pass
 
-    def generate(i, scorer, rows, n):
+    def generate(self, i, scorer, rows, n):
         arities = range(0,rows.nvars,max(1,int(rows.nvars/n)))
         nodes = []
         otherindices = [j for j in range(n) if j!=i]
@@ -162,3 +165,5 @@ def main():
     best_node_states = [searcher.search(i,scorer,rows) for i in range(rows.nvars)]
     print("Lengths=".format([len(i) for i in best_node_states]))
     
+
+main()
